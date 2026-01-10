@@ -1,0 +1,51 @@
+# ==============================
+# Archivos de Python
+# ==============================
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+
+# ==============================
+# Entornos virtuales
+# ==============================
+venv/
+env/
+.venv/
+.env/
+
+# ==============================
+# Modelos y datos pesados
+# ==============================
+*.keras
+*.h5
+*.ckpt
+*.npy
+*.wav
+*.mp3
+
+# ==============================
+# Archivos de sistema / IDE
+# ==============================
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# ==============================
+# Otros
+# ==============================
+*.zip
+*.tar.gz
+*.egg-info
+
+# ==============================
+ Modelos
+# ==============================
+model/
+*.keras
+*.h5
+*.ckpt
