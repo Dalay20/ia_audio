@@ -36,10 +36,20 @@ uploaded_files_cache = {} # Diccionario para gestionar la galería
 
 # --- 3. FUNCIÓN DE PREDICCIÓN (CON PRE-ÉNFASIS Y SEGMENTACIÓN) ---
 def predict_accent(audio_path):
-    if audio_path is None: return None
+    if audio_path is None: return "La muestra no ha sido ingresada. Intente nuevamente."
+
     try:
         y, sr = librosa.load(audio_path, sr=16000)
+
+        rms = np.mean(librosa.feature.rms(y=y))
+        if rms < 1e-4:  # umbral de silencio
+            return "No se puede clasificar. Registre una muestra válida."
+
         yt, _ = librosa.effects.trim(y, top_db=20)
+
+        # Segunda verificación tras el trim
+        if len(yt) < 1600:  # menos de 0.1s útil
+            return "la muestra no es válida"
 
         # Segmentación para manejar audios largos
         samples_per_seg = int(2.56 * 16000)
@@ -67,7 +77,7 @@ def predict_accent(audio_path):
         avg_preds = np.mean(all_preds, axis=0)
         return {mapping[i]: float(avg_preds[i]) for i in range(3)}
     except Exception as e:
-        return {"Error": str(e)}
+        return "La muestra no ha sido ingresada. Intente nuevamente."
 
 # --- 4. LÓGICA DE LA GALERÍA ---
 def update_gallery(files):
