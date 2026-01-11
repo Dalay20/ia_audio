@@ -1,51 +1,45 @@
-# ==============================
-# Archivos de Python
-# ==============================
+# === Otros ===
+.gradio/
+.gradio.py
+__pycache__/
+
+# === Python ===
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
-*.log
+*.egg-info
 
-# ==============================
-# Entornos virtuales
-# ==============================
+# === Entornos virtuales ===
 venv/
 env/
 .venv/
 .env/
 
-# ==============================
-# Modelos y datos pesados
-# ==============================
+# === Modelos y datos pesados ===
 *.keras
 *.h5
 *.ckpt
 *.npy
+*.npz
+*.pt
+*.pb
+*.tflite
+*.onnx
+
+# === Audios y datos grandes ===
 *.wav
 *.mp3
+*.flac
+*.ogg
+*.csv
+*.zip
+*.tar.gz
 
-# ==============================
-# Archivos de sistema / IDE
-# ==============================
+# === Archivos de sistema / IDE ===
 .DS_Store
 Thumbs.db
 .idea/
 .vscode/
-*.sublime-project
-*.sublime-workspace
 
-# ==============================
-# Otros
-# ==============================
-*.zip
-*.tar.gz
-*.egg-info
 
-# ==============================
- Modelos
-# ==============================
-model/
-*.keras
-*.h5
-*.ckpt
