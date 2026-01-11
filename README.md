@@ -1,52 +1,32 @@
-# ia_audio
+# 🎙️ Detector de Acentos con Deep Learning (VGG16)
 
-## Pasos para conectar el modelo y estructura del proyecto
+Este proyecto utiliza una red neuronal convolucional basada en la arquitectura **VGG16** para clasificar acentos del idioma español en tres categorías: **Andino**, **Mexicano** y **Español**. La interfaz gráfica está construida con **Gradio**.
 
-1. **Estructura de carpetas**
-   - El modelo entrenado debe estar en `model/accent_mobilenetv2.keras`.
-   - El código principal está en la raíz (`app.py`, `inference.py`).
-   - Las utilidades de audio y preprocesamiento están en `utils/audio.py` y `utils/preprocess.py`.
+## 🚀 Características
+- [cite_start]**Arquitectura**: Transfer Learning utilizando VGG16[cite: 260].
+- [cite_start]**Procesamiento**: Transformación de audio a Espectrogramas de Mel de $224 \times 224$[cite: 146, 147].
+- **Interfaz**: Permite grabar voz en tiempo real o subir archivos `.wav`/`.mp3`.
+- [cite_start]**Clasificación**: Salida probabilística para las 3 clases entrenadas[cite: 274].
 
-2. **Carga del modelo**
-   - El modelo se carga en el código así:
-     ```python
-     MODEL_PATH = "model/accent_mobilenetv2.keras"
-     model = tf.keras.models.load_model(MODEL_PATH)
-     ```
+## 📊 Rendimiento del Modelo
+[cite_start]Tras un proceso de *Fine-Tuning*[cite: 486], el modelo alcanzó los siguientes resultados en el set de prueba (Test):
+* [cite_start]**Precisión General (Accuracy)**: 66.21%[cite: 580].
+* [cite_start]**Acento con mejor desempeño**: México (F1-score: 0.79)[cite: 584].
+* [cite_start]**Acento Andino**: F1-score de 0.58[cite: 584].
+* [cite_start]**Acento España**: F1-score de 0.63[cite: 584].
 
-3. **Procesamiento del audio**
-   - Convierte el archivo `.wav` a Mel spectrogram con:
-     ```python
-     from utils.audio import audio_to_mel
-     mel = audio_to_mel("ruta/del/audio.wav")
-     ```
-   - Preprocesa el Mel para MobileNetV2:
-     ```python
-     from utils.preprocess import preprocess_mel
-     mel = preprocess_mel(mel)
-     mel = np.expand_dims(mel, axis=0)
-     ```
+## 🛠️ Instalación y Uso
 
-4. **Predicción**
-   - Realiza la predicción:
-     ```python
-     pred = model.predict(mel)
-     pred_class = CLASSES[np.argmax(pred)]
-     confidence = np.max(pred)
-     ```
+1. **Clonar el repositorio:**
+   ```bash
+   git clone <tu-url-del-repo>
+   cd ia_audio ```
 
-5. **Interfaz y uso**
-   - Usa `app.py` para una interfaz web con Streamlit.
-   - Usa `inference.py` para predicción desde scripts:
-     ```python
-     from inference import predict_accent
-     resultado = predict_accent("ruta/del/audio.wav")
-     ```
+2. **Instalar dependencias:**
+  ```bash
+   pip install -r requirements.txt
+  ```
 
----
-
-### Resumen del flujo
-1. El usuario sube o indica un archivo `.wav`.
-2. El audio se convierte y preprocesa a Mel spectrogram.
-3. El modelo predice el acento usando el archivo en `model/`.
-4. El resultado se muestra en la interfaz o se retorna desde la función.
+3. **Ejecutar la aplicación:**  
+   ```bash
+    python gradio2.py
