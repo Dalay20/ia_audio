@@ -6,30 +6,27 @@ from tensorflow.keras.applications import VGG16
 from tensorflow.keras import layers, models
 import os
 
-# --- 1. DEFINICIÓN DE LA ARQUITECTURA (IDÉNTICA A TU COLAB) ---
-# Esta estructura debe ser exacta para que los pesos encajen [cite: 263-274]
-def build_model_v5():
-    # Base VGG16 con pesos de imagenet (que luego serán sobrescritos por los tuyos) [cite: 260]
+# --- 1. DEFINICIÓN DE LA ARQUITECTURA ---
+def build_model_v6():
     base_model = VGG16(weights=None, include_top=False, input_shape=(224, 224, 3))
-    
     model = models.Sequential([
-        base_model, # 
-        layers.GlobalAveragePooling2D(), # [cite: 288]
-        layers.Dense(512, activation='relu'), # [cite: 289]
-        layers.BatchNormalization(), # [cite: 292]
-        layers.Dropout(0.5), # [cite: 294]
-        layers.Dense(256, activation='relu'), # [cite: 297]
-        layers.Dropout(0.3), # [cite: 300]
-        layers.Dense(3, activation='softmax') # Capa de salida: Andino, México, España [cite: 303]
+        base_model,
+        layers.Conv2D(256, (3, 3), activation='relu', padding='same'),
+        layers.BatchNormalization(),
+        layers.GlobalMaxPooling2D(), 
+        layers.Dense(512, activation='relu'),
+        layers.BatchNormalization(),
+        layers.Dropout(0.5),
+        layers.Dense(3, activation='softmax')
     ])
     return model
 
 # --- 2. CARGA DEL MODELO ---
 # Asegúrate de que el nombre del archivo sea el correcto en tu carpeta
-model_path = 'mejor_modelo_acentos_vgg16_imagenet_v6.h5' 
+model_path = 'mejor_modelo_acentos_vgg16_imagenet_v7.h5' 
 
 print("Construyendo esqueleto y cargando conocimiento (pesos)...")
-model = build_model_v5()
+model = build_model_v6()
 try:
     model.load_weights(model_path)
     print("✅ ¡ESTRUCTURA Y PESOS CARGADOS CON ÉXITO!")

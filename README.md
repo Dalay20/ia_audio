@@ -29,4 +29,4 @@ Este proyecto utiliza una red neuronal convolucional basada en la arquitectura *
 
 3. **Ejecutar la aplicación:**  
    ```bash
-    python gradio2.py
+    python final_pro.py
