@@ -22,7 +22,7 @@ def build_model_v6():
     return model
 
 # --- 2. CARGA DEL MODELO ---
-model_path = 'mejor_modelo_acentos_vgg16_imagenet_v7.h5'
+model_path = 'act_mejor_modelo_acentos_vgg16_imagenet_final.h5'
 model = build_model_v6()
 
 try:
@@ -34,7 +34,7 @@ except Exception as e:
 mapping = {0: 'Andino', 1: 'México', 2: 'España'}
 uploaded_files_cache = {} # Diccionario para gestionar la galería
 
-# --- 3. FUNCIÓN DE PREDICCIÓN (CON PRE-ÉNFASIS Y SEGMENTACIÓN) ---
+# --- 3. FUNCIÓN DE PREDICCIÓN (OPTIMIZADA CON BATCH PREDICTION) ---
 def predict_accent(audio_path):
     if audio_path is None: return None
     try:
@@ -43,12 +43,17 @@ def predict_accent(audio_path):
 
         # Segmentación para manejar audios largos
         samples_per_seg = int(2.56 * 16000)
+        
+        # Optimización: Pre-asignar lista para las imágenes procesadas
+        processed_images = []
+        
         if len(yt) < samples_per_seg:
             segments = [np.pad(yt, (0, samples_per_seg - len(yt)))]
         else:
+            # Crear segmentos usando slicing (sin cambios aquí)
             segments = [yt[i:i + samples_per_seg] for i in range(0, len(yt)-samples_per_seg+1, samples_per_seg)]
-        all_preds = []
 
+        # FASE 1: Preprocesamiento masivo (CPU)
         for seg in segments:
             # Pre-énfasis manual
             seg_pre = np.append(seg[0], seg[1:] - 0.97 * seg[:-1])
@@ -59,10 +64,23 @@ def predict_accent(audio_path):
             S_db = librosa.power_to_db(S, top_db=80)
        
             # Normalización Min-Max
-            S_norm = (S_db - S_db.min()) / (S_db.max() - S_db.min() + 1e-6)
+            val_min, val_max = S_db.min(), S_db.max()
+            S_norm = (S_db - val_min) / (val_max - val_min + 1e-6)
+            
+            # Crear imagen de 3 canales (224, 224, 3)
             img = np.stack([S_norm] * 3, axis=-1)
-            img = np.expand_dims(img, axis=0)
-            all_preds.append(model.predict(img, verbose=0)[0])
+            processed_images.append(img)
+
+        # FASE 2: Inferencia en Lote (GPU/CPU optimizado)
+        if not processed_images:
+            return {"Error": "Audio demasiado corto o vacío"}
+
+        # Convertimos la lista a un Tensor Batch: (N, 224, 224, 3)
+        batch_input = np.array(processed_images)
+        
+        # Una sola llamada a predict para TODOS los segmentos
+        # batch_size=32 es estándar, ajústalo según tu memoria
+        all_preds = model.predict(batch_input, verbose=0, batch_size=32)
 
         avg_preds = np.mean(all_preds, axis=0)
         return {mapping[i]: float(avg_preds[i]) for i in range(3)}
