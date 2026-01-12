@@ -3,5 +3,3 @@ tensorflow
 librosa
 numpy
 pandas
-matplotlib
-scikit-learn

@@ -36,10 +36,19 @@ uploaded_files_cache = {} # Diccionario para gestionar la galería
 
 # --- 3. FUNCIÓN DE PREDICCIÓN (OPTIMIZADA CON BATCH PREDICTION) ---
 def predict_accent(audio_path):
-    if audio_path is None: return None
+    if audio_path is None: return "La muestra no ha sido ingresada. Intente nuevamente."
     try:
         y, sr = librosa.load(audio_path, sr=16000)
+
+        rms = np.mean(librosa.feature.rms(y=y))
+        if rms < 1e-4:  # umbral de silencio
+            return "No se puede clasificar. Registre una muestra válida."
+
         yt, _ = librosa.effects.trim(y, top_db=20)
+
+        # Segunda verificación tras el trim
+        if len(yt) < 1600:  # menos de 0.1s útil
+            return "la muestra no es válida"
 
         # Segmentación para manejar audios largos
         samples_per_seg = int(2.56 * 16000)
@@ -85,7 +94,7 @@ def predict_accent(audio_path):
         avg_preds = np.mean(all_preds, axis=0)
         return {mapping[i]: float(avg_preds[i]) for i in range(3)}
     except Exception as e:
-        return {"Error": str(e)}
+        return "La muestra no ha sido ingresada. Intente nuevamente."
 
 # --- 4. LÓGICA DE LA GALERÍA ---
 def update_gallery(files):
@@ -97,18 +106,18 @@ def update_gallery(files):
 
 
 def analyze_from_gallery(selected_name):
-    if not selected_name: return None
+    if not selected_name: return "La muestra no ha sido ingresada. Intente nuevamente."
     return predict_accent(uploaded_files_cache[selected_name])
 
 # --- 5. INTERFAZ DE GRADIO ACTUALIZADA ---
 with gr.Blocks(theme=gr.themes.Soft()) as demo:
-    gr.Markdown("# 🎙️ Detector de Acentos Pro V6")
+    gr.Markdown("# 🎙️ Detector de Acentos")
 
     with gr.Tab("Prueba Individual (Micro/Upload)"):
         with gr.Row():
             with gr.Column():
                 audio_single = gr.Audio(type="filepath", label="Grabación directa", sources=["microphone", "upload"])
-                btn_run_single = gr.Button("🚀 Analizar Audio Actual", variant="primary")
+                btn_run_single = gr.Button(" Analizar Audio Actual", variant="primary")
             with gr.Column():
                 label_single = gr.Label(label="Resultado")
     with gr.Tab("Galería de Archivos (Carga Masiva)"):
@@ -122,7 +131,7 @@ with gr.Blocks(theme=gr.themes.Soft()) as demo:
 
                 # NUEVO: Reproductor para escuchar el archivo seleccionado
                 audio_player = gr.Audio(label="Escuchar selección", interactive=False)
-                btn_run_gallery = gr.Button("🚀 Analizar de la Galería", variant="primary")
+                btn_run_gallery = gr.Button(" Analizar de la Galería", variant="primary")
             with gr.Column():
                 label_gallery = gr.Label(label="Resultado de Selección")
 
